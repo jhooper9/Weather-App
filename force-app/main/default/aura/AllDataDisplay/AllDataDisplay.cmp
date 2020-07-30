@@ -1,0 +1,56 @@
+<aura:component controller="AllDataDisplayController" implements="flexipage:availableForAllPageTypes">
+    <aura:attribute name="hourList" type ="List"/>
+    <aura:attribute name="dayList" type ="List"/>
+
+    <aura:attribute name="wdir" type="Decimal"/>
+    <aura:attribute name="temp" type="Decimal"/>
+    <aura:attribute name="wspd" type="Decimal"/>
+    <aura:attribute name="humidity" type="Decimal"/>
+    <aura:attribute name="wgust" type="Decimal"/>
+    <aura:attribute name="windchill" type="Decimal"/>
+    <aura:attribute name="precip" type="Decimal"/>
+    <aura:attribute name="sealevelpressure" type="Decimal"/>
+    <aura:attribute name="snowdepth" type="Decimal"/>
+    <aura:attribute name="cloudcover" type="Decimal"/>
+    <aura:attribute name="datetime" type="DateTime"/>
+    <aura:attribute name="heatindex" type="Decimal"/>
+    <aura:attribute name="pop" type="Decimal"/>
+    <aura:attribute name="conditions" type="String"/>
+    
+    <!--They give the times to me in ms >:(-->
+    <aura:attribute name="sunrise" type="String" default="--"/>
+    <aura:attribute name="sunset" type="String" default="--"/>
+    <aura:attribute name="high" type="String" default="--"/>
+    <aura:attribute name="low" type="String" default="--"/>
+
+    <lightning:formattedText value="This section is an example of the hourly data:"/>
+    <br/>
+    <lightning:formattedText value="{!v.wdir}"/>
+    <lightning:formattedText value="{!v.temp}"/>
+    <lightning:formattedText value="{!v.wspd}"/>
+    <lightning:formattedText value="{!v.humidity}"/>
+    <lightning:formattedText value="{!v.wgust}"/>
+    <lightning:formattedText value="{!v.windchill}"/>
+    <lightning:formattedText value="{!v.precip}"/>
+    <lightning:formattedText value="{!v.sealevelpressure}"/>
+    <lightning:formattedText value="{!v.snowdepth}"/>
+    <lightning:formattedText value="{!v.cloudcover}"/>
+    <lightning:formattedText value="{!v.datetime}"/>
+    <lightning:formattedText value="{!v.heatindex}"/>
+    <lightning:formattedText value="{!v.pop}"/>
+    <lightning:formattedText value="{!v.conditions}"/>
+    <br/>
+    <lightning:formattedText value="This section is an example of the daily data:"/>
+    <br/>
+    <lightning:card>
+        <div class="slds-text-body_regular slds-p-horizontal_small">
+        <p>{!'High: '+ v.high}</p>
+        <p>{!'Low: '+ v.low}</p>
+        <p>{!'Sunrise: '+ v.sunrise}</p>
+        <p>{!'Sunset: '+ v.sunset}</p>
+            </div>
+    </lightning:card>
+    <br/>
+    
+    <lightning:button label="I am button" onclick="{!c.loadWeatherData}"/>
+</aura:component>

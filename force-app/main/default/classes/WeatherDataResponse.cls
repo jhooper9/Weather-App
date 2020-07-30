@@ -41,6 +41,7 @@ public class WeatherDataResponse {
         public decimal snowdepth {get;set;}
         public decimal cloudcover {get;set;}
         public String datetimeStr {get;set;}
+        public long datetimeM {get;set;}
         public Decimal heatindex {get;set;}
         public Decimal pop {get;set;}
         public String conditions {get;set;}

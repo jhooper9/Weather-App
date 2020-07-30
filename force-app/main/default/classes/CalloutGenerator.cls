@@ -8,7 +8,7 @@ public class CalloutGenerator {
         request.setMethod('GET');
         return httpController.send(request);
     }
-    public static String makeCallout(String city, String state, String country, Boolean metric){
+    private static String makeCallout(String city, String state, String country, Boolean metric){
         String units = 'unitGroup=us';
         if(metric) units = 'unitGroup=metric';
         String locationString;
@@ -18,19 +18,16 @@ public class CalloutGenerator {
             'shortColumnNames=false&' + units + '&location=' + locationString + '&aggregateHours=1';
         HttpResponse response = callSetup(inputString);
         String stringToReplace = city+','+state+','+country;
-        System.debug(response.getBody());
+        //System.debug(response.getBody());
         String bodyString = (response.getBody()).replaceAll(stringToReplace, 'city');
-        bodyString = bodyString.replaceAll('datetime', 'datetimeMS');
+        bodyString = bodyString.replaceAll('datetime":', 'datetimeM":');
         return bodyString;
         
     }
-    public static void processResponse(String city, String state, String country, Boolean metric){
+    public static void getNewWeatherData(String city, String state, String country, Boolean metric){
         String response = makeCallout(city,state,country,metric);
         WeatherDataResponse wDR = (WeatherDataResponse)JSON.deserialize(response, WeatherDataResponse.class);
         WeatherDataResponse.City cityData = wDR.locations.city;
-        /*for(Integer i=0;i<12;i++){
-            System.debug('Date: ' + DateTime.newInstance(cityData.values[i].datetimeMS) + ' --- temp: ' + cityData.values[i].temp + ' --- pop: ' + cityData.values[i].pop);
-        }*/
         String locationName = city+','+state+','+country;
         List<Location__c> locList = [SELECT Id FROM Location__c WHERE Name =: locationName];
         Location__c loc;
@@ -42,7 +39,7 @@ public class CalloutGenerator {
         }
         DELETE [SELECT Id FROM One_Day_Forecast__c WHERE Location__c=:loc.Id];
         List<One_Day_Forecast__c> daily = new List<One_Day_Forecast__c>();
-        Date endDate = DateTime.newInstance((cityData.values[cityData.values.size()-1]).dateTimeMS).Date();
+        Date endDate = DateTime.newInstance((cityData.values[cityData.values.size()-1]).datetimeM).Date();
         Date currentDate = Date.today();
         List<Integer> rTime = getTimeValues(cityData.currentConditions.sunrise);
         List<Integer> sTime = getTimeValues(cityData.currentConditions.sunset);
@@ -58,8 +55,10 @@ public class CalloutGenerator {
         Integer dayIndex = 0;
         List<One_Hour_Forecast__c> hourly = new List<One_Hour_Forecast__c>();
         for(WeatherDataResponse.HourlyCondition h : cityData.values) {
-            DateTime hourlyDateTime = DateTime.newInstance(h.dateTimeMS);
-            if(daily[dayIndex].date__c!=hourlyDateTime.date()&&dayIndex<daily.size()-1) dayIndex++;
+            DateTime hourlyDateTime = DateTime.newInstance(h.datetimeM);
+            if(daily[dayIndex].date__c!=hourlyDateTime.date()&&dayIndex<daily.size()-1) {
+                dayIndex++;
+            }
             hourly.add(new One_Hour_Forecast__c(Snow_Depth__c = h.snowdepth, Temperature__c = h.temp, Wind_Chill__c = h.windchill,
                                                 Wind_Gust__c = h.wgust, Wind_Heading__c = h.wdir, Wind_Speed__c = h.wspd,
                                                 Air_Pressure__c = h.sealevelpressure, Amount_of_Precipitation__c = h.precip,
@@ -67,6 +66,7 @@ public class CalloutGenerator {
                                                 Datetime__c = hourlyDateTime, Heat_Index__c = h.heatindex, 
                                                 Humidity__c = h.humidity, Daily__c = daily[dayIndex].Id
             ));
+            //System.debug('Indx: ' + hourlyDateTime.time() +' -- '+ h.pop +' -- '+ totalPop);
         }
         INSERT hourly;
     }
